@@ -1,0 +1,119 @@
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/map_fragment_parent_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="net.neuralmetrics.projecthermes.MapFragment">
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/locate_me_fab"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:adjustViewBounds="false"
+        android:clickable="true"
+        android:scaleType="center"
+        android:tint="@android:color/white"
+        mapbox:fabSize="mini"
+        mapbox:layout_constraintBottom_toBottomOf="parent"
+        mapbox:layout_constraintRight_toRightOf="parent"
+        mapbox:srcCompat="@drawable/ic_my_location_black_24dp" />
+
+    <!--<Button-->
+        <!--android:id="@+id/button2"-->
+        <!--style="@style/Widget.AppCompat.Button.Colored"-->
+        <!--android:layout_width="0dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginBottom="16dp"-->
+        <!--android:layout_marginLeft="8dp"-->
+        <!--android:layout_marginRight="8dp"-->
+        <!--android:text="SELECT LOCATION"-->
+        <!--android:textColor="@android:color/white"-->
+        <!--mapbox:layout_constraintBottom_toBottomOf="@+id/mapView"-->
+        <!--mapbox:layout_constraintHorizontal_bias="1.0"-->
+        <!--mapbox:layout_constraintLeft_toLeftOf="@+id/cardView"-->
+        <!--mapbox:layout_constraintRight_toLeftOf="@+id/locate_me_fab" />-->
+
+    <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/cardView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:cardElevation="5dp"
+        app:layout_constraintRight_toLeftOf="@+id/locate_me_fab"
+        mapbox:layout_constraintLeft_toLeftOf="parent"
+        mapbox:layout_constraintRight_toRightOf="parent"
+        mapbox:layout_constraintTop_toTopOf="parent"
+        tools:layout_constraintTop_creator="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/search_box"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:ems="10"
+                android:hint="Search for location"
+                android:inputType="textPersonName"
+                android:padding="8dp"
+                android:focusable="false" />
+
+            <!--<com.mapbox.services.android.geocoder.ui.GeocoderAutoCompleteView-->
+                <!--android:id="@+id/query"-->
+                <!--android:layout_width="0dp"-->
+                <!--android:layout_weight="1"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:background="@android:color/white"-->
+                <!--android:hint="Search here"-->
+                <!--android:padding="10dp"-->
+                <!--android:textColor="@android:color/black"-->
+                <!--android:maxLines="1"-->
+                <!--android:singleLine="true" />-->
+
+            <Button
+                android:id="@+id/pick_location_button"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginRight="4dp"
+                android:layout_weight="0"
+                android:background="@drawable/ic_pin_drop_black_24dp"
+                android:backgroundTint="@color/colorPrimary" />
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <com.mapbox.mapboxsdk.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        mapbox:layout_constraintBottom_toBottomOf="parent"
+        mapbox:layout_constraintHorizontal_bias="1.0"
+        mapbox:layout_constraintLeft_toLeftOf="parent"
+        mapbox:layout_constraintTop_toTopOf="parent"
+        mapbox:layout_constraintVertical_bias="0.0"
+        mapbox:mapbox_cameraTargetLat="40.73581"
+        mapbox:mapbox_cameraTargetLng="-73.99155"
+        mapbox:mapbox_cameraZoom="11"
+        mapbox:mapbox_styleUrl="mapbox://styles/mapbox/streets-v10"
+        tools:layout_constraintTop_creator="1"
+        tools:layout_constraintBottom_creator="1"
+        android:layout_marginRight="0dp"
+        mapbox:layout_constraintRight_toRightOf="parent">
+
+    </com.mapbox.mapboxsdk.maps.MapView>
+
+
+</android.support.constraint.ConstraintLayout>
