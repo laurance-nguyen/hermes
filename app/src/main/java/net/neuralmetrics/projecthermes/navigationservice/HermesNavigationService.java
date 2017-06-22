@@ -28,6 +28,7 @@ import com.mapbox.services.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.services.api.directions.v5.models.StepManeuver;
 import com.mapbox.services.commons.models.Position;
 
+import net.neuralmetrics.projecthermes.HomeActivity;
 import net.neuralmetrics.projecthermes.MockLocationEngine;
 import net.neuralmetrics.projecthermes.R;
 import net.neuralmetrics.projecthermes.utils.ResourceUtils;
@@ -113,7 +114,13 @@ public class HermesNavigationService extends Service implements NavigationEventL
             // Prepare the notification and start foreground service
             Intent stopNavIntent = new Intent(this, HermesNavigationService.class);
             stopNavIntent.setAction(ServiceConstants.STOP_FOREGROUND);
-            PendingIntent pStopNavIntent = PendingIntent.getService(this, 0, stopNavIntent, 0);
+            PendingIntent pStopNavIntent = PendingIntent.getService(this, 0, stopNavIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+            // Show screen when user taps on Notification
+            Intent startNavFragmentIntent = new Intent(this, HomeActivity.class);
+            startNavFragmentIntent.setAction(ServiceConstants.START_NAV_FRAGMENT);
+            startNavFragmentIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            PendingIntent pStartNavFragmentIntent = PendingIntent.getActivity(this, 0, startNavFragmentIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
             Log.i(LOG_TAG, "START_FOREGROUND intent is received by the service");
             Bitmap icon = ResourceUtils.drawableToBitmap(getResources().getDrawable(R.mipmap.ic_launcher));
@@ -123,7 +130,7 @@ public class HermesNavigationService extends Service implements NavigationEventL
                     .setContentText("Waiting for GPS and navigation service...")
                     .setSmallIcon(R.drawable.ic_bubble_chart_black_24dp)
                     .setLargeIcon(Bitmap.createScaledBitmap(icon, 128, 128, false))
-                    .setContentIntent(null)
+                    .setContentIntent(pStartNavFragmentIntent)
                     .setOngoing(true)
                     .addAction(R.drawable.ic_close_black_24dp, "EXIT NAVIGATION", pStopNavIntent);
 
@@ -200,7 +207,7 @@ public class HermesNavigationService extends Service implements NavigationEventL
                 navigation.startNavigation(route);
 
                 // A good time to tell everyone outside that the service is up and running
-                if (eventReception!=null) eventReception.serviceReady(HermesNavigationService.this.route, HermesNavigationService.this.locationEngine);
+                if (eventReception!=null) eventReception.serviceReady(HermesNavigationService.this.route, HermesNavigationService.this.locationEngine, HermesNavigationService.this.destination);
 
             }
 
@@ -232,7 +239,7 @@ public class HermesNavigationService extends Service implements NavigationEventL
 
     public void reattachListener()
     {
-        if (eventReception!=null) eventReception.serviceReady(HermesNavigationService.this.route, HermesNavigationService.this.locationEngine);
+        if (eventReception!=null) eventReception.serviceReady(HermesNavigationService.this.route, HermesNavigationService.this.locationEngine, HermesNavigationService.this.destination);
     }
 
     @Override
@@ -279,7 +286,7 @@ public class HermesNavigationService extends Service implements NavigationEventL
 
     public interface OnNavigationServiceReady
     {
-        void serviceReady(DirectionsRoute directionsRoute, LocationEngine locationEngine);
+        void serviceReady(DirectionsRoute directionsRoute, LocationEngine locationEngine, Position destination);
         void progressChange(Location location, RouteProgress routeProgress);
         void serviceTerminate();
     }

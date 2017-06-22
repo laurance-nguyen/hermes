@@ -13,5 +13,6 @@ public class ServiceConstants {
 
     public static final String START_FOREGROUND = "net.neuralmetrics.projecthermes.START_FOREGROUND";
     public static final String STOP_FOREGROUND = "net.neuralmetrics.projecthermes.STOP_FOREGROUND";
+    public static final String START_NAV_FRAGMENT = "net.neuralmetrics.projecthermes.START_NAV_FRAGMENT";
 
 }

@@ -23,6 +23,8 @@ import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.Polyline;
 import com.mapbox.mapboxsdk.annotations.PolylineOptions;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.constants.MyLocationTracking;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -61,6 +63,8 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
 
     private static final String LOG_TAG = "DriveFragment";
 
+    private static boolean RESUME_NAVIGATION_FLAG = false;
+
     private MapView mapView;
     private LocationEngine locationEngine;
     private MapboxNavigation navigation;
@@ -98,13 +102,29 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
         return fragment;
     }
 
+    public static DriveFragment newInstance() {
+        DriveFragment fragment = new DriveFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        RESUME_NAVIGATION_FLAG = true;
+        return fragment;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Mapbox.getInstance(this.getContext(), getActivity().getResources().getString(R.string.mapbox_access_token));
         getActivity().setTitle("Navigation");
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
+            // RESUME NAVIGATION PROCEDURE
+            if (RESUME_NAVIGATION_FLAG)
+            {
+                bindServiceToFragment();
+                return;
+            }
 
+            // NORMAL START PROCEDURE
             // Interpret destination coordinates
             double lat = getArguments().getDouble("latitude");
             double lon = getArguments().getDouble("longitude");
@@ -123,7 +143,6 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
             // Configure the destination field
             destination=Position.fromCoordinates(lon,lat);
         }
-        setHasOptionsMenu(true);
     }
 
     // Service binding and unbinding functions
@@ -195,7 +214,13 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
 
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
+
         this.mapboxMap = mapboxMap;
+        if (RESUME_NAVIGATION_FLAG)
+        {
+            navService.reattachListener();
+            RESUME_NAVIGATION_FLAG=false;
+        }
     }
 
     // Markers and route illustrating
@@ -225,6 +250,9 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
             return;
         }
         Position origin = (Position.fromCoordinates(userLocation.getLongitude(), userLocation.getLatitude()));
+        // Zoom to the map
+        mapboxMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(origin.getLatitude(),origin.getLongitude()), 16));
+        // Some marker decoration
         if (TurfMeasurement.distance(origin, destination, TurfConstants.UNIT_METERS) < 50) {
             mapboxMap.removeMarker(destinationMarker);
             return;
@@ -238,7 +266,8 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
      */
 
     @Override
-    public void serviceReady(DirectionsRoute directionsRoute, LocationEngine locationEngine) {
+    public void serviceReady(DirectionsRoute directionsRoute, LocationEngine locationEngine, Position destination) {
+        this.destination = destination;
         mapboxMap.setLocationSource(locationEngine);
         // Enable location tracking
         if (PermissionsManager.areLocationPermissionsGranted(getActivity())) {

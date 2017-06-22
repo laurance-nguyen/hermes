@@ -1,5 +1,6 @@
 package net.neuralmetrics.projecthermes;
 
+import android.app.Service;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
@@ -19,6 +20,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.mapbox.services.android.navigation.v5.listeners.NavigationEventListener;
+
+import net.neuralmetrics.projecthermes.navigationservice.ServiceConstants;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, MapFragment.OnRequestDrivingListener {
@@ -58,6 +61,12 @@ public class HomeActivity extends AppCompatActivity
                 navReplaceFragment();
             }
         });
+
+        if (getIntent().getAction().equals(ServiceConstants.START_NAV_FRAGMENT))
+        {
+            requestFragmentDrive();
+            return;
+        }
 
         // Switch to maps fragment on start
         navigationView.setCheckedItem(R.id.nav_maps);
@@ -146,6 +155,13 @@ public class HomeActivity extends AppCompatActivity
     @Override
     public void requestFragmentDrive(double lat, double lon) {
         chosenMenuFragment = DriveFragment.newInstance(lat, lon);
+        navigationView.setCheckedItem(R.id.nav_drive);
+        navReplaceFragment();
+    }
+
+    public void requestFragmentDrive()
+    {
+        chosenMenuFragment = DriveFragment.newInstance();
         navigationView.setCheckedItem(R.id.nav_drive);
         navReplaceFragment();
     }
