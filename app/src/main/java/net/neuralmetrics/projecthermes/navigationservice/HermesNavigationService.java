@@ -134,7 +134,7 @@ public class HermesNavigationService extends Service implements NavigationEventL
             initGPSPosition();
 
         } else if (intent.getAction().equals(ServiceConstants.STOP_FOREGROUND)) {
-            Log.i(LOG_TAG, "STOP_FOREGROUND intent is received by the service");
+            Log.i(LOG_TAG, "STOP_FOREGROUND intent is received by the service. Preparing to stop the service");
 
             // Request DriveFragment to release the binding and unplug all the listeners
             if (eventReception!=null) eventReception.serviceTerminate();
