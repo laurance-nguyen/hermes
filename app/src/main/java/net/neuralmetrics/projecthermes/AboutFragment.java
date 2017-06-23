@@ -1,12 +1,14 @@
 package net.neuralmetrics.projecthermes;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -25,6 +27,8 @@ import android.widget.TextView;
  * create an instance of this fragment.
  */
 public class AboutFragment extends Fragment {
+
+    private FloatingActionButton fab;
 
     public AboutFragment() {
         // Required empty public constructor
@@ -76,6 +80,16 @@ public class AboutFragment extends Fragment {
             PackageInfo packageInfo = getActivity().getPackageManager().getPackageInfo(getActivity().getPackageName(), 0);
             String version=packageInfo.versionName;
             ((TextView) getView().findViewById(R.id.txtVersion)).setText("Version: "+version+".");
+            fab = (FloatingActionButton) getView().findViewById(R.id.fab);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto","hermes@neuralmetrics.net",null));
+                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "[HERMES] Feedback about Project HERMES");
+                    emailIntent.putExtra(Intent.EXTRA_TEXT, "Please enter your feedback here. Bugs, features you expect, anything you would like to make HERMES suit you better.");
+                    startActivity(Intent.createChooser(emailIntent, "Feedback to us"));
+                }
+            });
         } catch (Exception e)
         {
             e.printStackTrace();

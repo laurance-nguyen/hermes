@@ -1,5 +1,6 @@
 package net.neuralmetrics.projecthermes;
 
+import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -45,6 +46,7 @@ import com.mapbox.services.commons.models.Position;
 import net.neuralmetrics.projecthermes.navigationservice.HermesNavigationService;
 import net.neuralmetrics.projecthermes.navigationservice.ServiceConstants;
 import net.neuralmetrics.projecthermes.utils.ResourceUtils;
+import net.neuralmetrics.projecthermes.utils.ServiceRunningUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -176,9 +178,9 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
 
     private void unbindServiceFromFragment()
     {
-        getActivity().getApplicationContext().unbindService(navServiceConnect);
         if (navService!=null)
         {
+            getActivity().getApplicationContext().unbindService(navServiceConnect);
             navService.removeEventReception();
             navService=null;
             Log.i(LOG_TAG, "Navigation Service unbind");
@@ -399,7 +401,7 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
 
     @Override
     public void onResume() {
-        Log.i(LOG_TAG, "Fragment resumed");
+        Log.i(LOG_TAG, "DriveFragment OnResume");
         if (navService!=null) navService.setEventReception(DriveFragment.this);
         if (navService!=null) navService.reattachListener();
         mapView.onResume();
@@ -408,7 +410,7 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
 
     @Override
     public void onPause() {
-        Log.i(LOG_TAG, "Fragment paused");
+        Log.i(LOG_TAG, "DriveFragment OnPause");
         if (navService!=null) navService.removeEventReception();
         mapboxMap.setLocationSource(null);
         mapView.onPause();
@@ -418,6 +420,7 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
     @Override
     public void onStart() {
         super.onStart();
+        Log.i(LOG_TAG, "DriveFragment OnStart");
         bindServiceToFragment();
         mapView.onStart();
     }

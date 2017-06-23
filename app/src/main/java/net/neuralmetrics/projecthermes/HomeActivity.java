@@ -21,7 +21,9 @@ import android.view.MenuItem;
 
 import com.mapbox.services.android.navigation.v5.listeners.NavigationEventListener;
 
+import net.neuralmetrics.projecthermes.navigationservice.HermesNavigationService;
 import net.neuralmetrics.projecthermes.navigationservice.ServiceConstants;
+import net.neuralmetrics.projecthermes.utils.ServiceRunningUtils;
 
 public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, MapFragment.OnRequestDrivingListener {
@@ -62,7 +64,7 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
-        if (getIntent().getAction().equals(ServiceConstants.START_NAV_FRAGMENT))
+        if (getIntent().getAction().equals(ServiceConstants.START_NAV_FRAGMENT) || ServiceRunningUtils.isMyServiceRunning(HermesNavigationService.class,this))
         {
             requestFragmentDrive();
             return;
@@ -81,6 +83,7 @@ public class HomeActivity extends AppCompatActivity
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.content_frame, chosenMenuFragment)
+                    .addToBackStack(null)
                     .commit();
             chosenMenuFragment = null;
         }
@@ -128,7 +131,11 @@ public class HomeActivity extends AppCompatActivity
             chosenMenuFragment = MapFragment.newInstance();
             ((MapFragment) chosenMenuFragment).setDrivingListener(this);
         } else if (id == R.id.nav_drive) {
-            // chosenMenuFragment = DriveFragment.newInstance(DriveFragment.INVALID_LAT_LNG, DriveFragment.INVALID_LAT_LNG);
+            if (ServiceRunningUtils.isMyServiceRunning(HermesNavigationService.class,this))
+            {
+                requestFragmentDrive();
+                return true;
+            }
             AlertDialog.Builder notLaunchedFromMapsDialogBuilder = new AlertDialog.Builder(this)
                     .setTitle("Action not permitted")
                     .setMessage("Drive function can not be launched directly from menu. Please use the Maps function to choose location first.")
@@ -164,5 +171,15 @@ public class HomeActivity extends AppCompatActivity
         chosenMenuFragment = DriveFragment.newInstance();
         navigationView.setCheckedItem(R.id.nav_drive);
         navReplaceFragment();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        /*if (getIntent().getAction().equals(ServiceConstants.START_NAV_FRAGMENT) || ServiceRunningUtils.isMyServiceRunning(HermesNavigationService.class,this))
+        {
+            requestFragmentDrive();
+            return;
+        }*/
     }
 }
