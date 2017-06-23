@@ -457,6 +457,7 @@ public class MapFragment extends Fragment implements PermissionsListener {
     @Override
     public void onStart() {
         super.onStart();
+        getActivity().setTitle("Maps");
         mapView.onStart();
     }
 

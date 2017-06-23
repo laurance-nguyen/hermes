@@ -65,6 +65,7 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
     private static final String LOG_TAG = "DriveFragment";
 
     private static boolean RESUME_NAVIGATION_FLAG = false;
+    private boolean LIFECYCLE_RESUME_FLAG = false;
 
     private MapView mapView;
     private LocationEngine locationEngine;
@@ -245,10 +246,16 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
     public void onMapReady(MapboxMap mapboxMap) {
 
         this.mapboxMap = mapboxMap;
-        if (RESUME_NAVIGATION_FLAG)
+        if (navService!=null && RESUME_NAVIGATION_FLAG) // Resume when activity is destroyed and notification is tapped
         {
             navService.onReattachListener();
             RESUME_NAVIGATION_FLAG=false;
+        }
+        if (navService!=null && LIFECYCLE_RESUME_FLAG) // Resume from backstack
+        {
+            navService.setEventReception(DriveFragment.this);
+            navService.onReattachListener();
+            LIFECYCLE_RESUME_FLAG=false;
         }
     }
 
@@ -297,7 +304,7 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
     @Override
     public void serviceReady(DirectionsRoute directionsRoute, LocationEngine locationEngine, Position destination) {
         this.destination = destination;
-        mapboxMap.setLocationSource(locationEngine);
+        // mapboxMap.setLocationSource(locationEngine);
         // Enable location tracking
         if (PermissionsManager.areLocationPermissionsGranted(getActivity())) {
             mapboxMap.setMyLocationEnabled(true);
@@ -438,10 +445,11 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
 
     @Override
     public void onResume() {
-        Log.i(LOG_TAG, "DriveFragment OnResume");
-        if (navService!=null) navService.setEventReception(DriveFragment.this);
-        if (navService!=null) navService.onReattachListener();
         mapView.onResume();
+        Log.i(LOG_TAG, "DriveFragment OnResume");
+        if (navService!=null) {
+            LIFECYCLE_RESUME_FLAG = true;
+        }
         super.onResume();
     }
 
@@ -458,6 +466,7 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
     public void onStart() {
         super.onStart();
         Log.i(LOG_TAG, "DriveFragment OnStart");
+        getActivity().setTitle("Navigation");
         // bindServiceToFragment();
         mapView.onStart();
     }

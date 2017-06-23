@@ -78,7 +78,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="8dp"
-                android:text="By HERMES Team / NeuralMetrics"
+                android:text="By HERMES Team / NeuralMetrics IM"
                 android:textAllCaps="false"
                 android:textStyle="bold" />
 
@@ -89,7 +89,7 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginRight="16dp"
                 android:layout_marginTop="32dp"
-                android:text="Navigation made easy. Hermes guides you live through the traffic, so you don't have to stop your bike and check the itinerary. Developed by a team of aspiring students at HCMUT, in collaboration with NeuralMetrics." />
+                android:text="Navigation made easy. Hermes guides you live through the traffic, so you don't have to stop your bike and check the itinerary. Developed by a team of aspiring students at HCMUT, in collaboration with NeuralMetrics IM." />
 
             <TextView
                 android:id="@+id/textView5"
