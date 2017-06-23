@@ -29,10 +29,16 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDkJm59kVMWpoT_YzhhU2hiqteB6BJXwKQ" />
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="ecac8b06aeccd4f216282de9a1190942b99efde3" />
+
         <service
             android:name=".navigationservice.HermesNavigationService"
             android:enabled="true"
             android:exported="true" />
     </application>
+
+
 
 </manifest>

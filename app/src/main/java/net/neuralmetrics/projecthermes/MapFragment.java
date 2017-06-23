@@ -78,7 +78,7 @@ public class MapFragment extends Fragment implements PermissionsListener {
     private ConstraintLayout mapFragmentParentLayout;
     private EditText searchBox;
     private LatLng locationReference;
-    private OnRequestDrivingListener drivingListener;
+
     private boolean searchLocationActivityLaunched = false; // Prevent launching the search activity multiple times
     private final static String LOG_TAG = "MapFragment";
 
@@ -97,11 +97,6 @@ public class MapFragment extends Fragment implements PermissionsListener {
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    public void setDrivingListener(OnRequestDrivingListener mDrivingListener)
-    {
-        this.drivingListener=mDrivingListener;
     }
 
     @Override
@@ -433,7 +428,7 @@ public class MapFragment extends Fragment implements PermissionsListener {
             @Override
             public void exec() {
                 cleanSearchPickLocation();
-                if (drivingListener!=null) drivingListener.requestFragmentDrive(position.getLatitude(), position.getLongitude());
+                ((HomeActivity) getActivity()).requestFragmentDrive(position.getLatitude(), position.getLongitude());
             }
         };
         confirmNavigationDialog.delegateNegative=new IDelegate() {
@@ -493,7 +488,6 @@ public class MapFragment extends Fragment implements PermissionsListener {
     public void onDestroy() {
         super.onDestroy();
         mapView.onDestroy();
-        drivingListener=null;
     }
 
     @Override
@@ -502,8 +496,8 @@ public class MapFragment extends Fragment implements PermissionsListener {
         mapView.onSaveInstanceState(outState);
     }
 
-    public interface OnRequestDrivingListener
+    /*public interface OnRequestDrivingListener
     {
         void requestFragmentDrive(double lat, double lon);
-    }
+    }*/
 }

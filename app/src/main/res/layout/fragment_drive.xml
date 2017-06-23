@@ -6,18 +6,18 @@
     tools:context="net.neuralmetrics.projecthermes.DriveFragment">
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatingActionButton"
+        android:id="@+id/quit_nav_button"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_marginBottom="16dp"
         android:layout_marginRight="16dp"
         android:clickable="true"
+        android:scaleType="center"
         android:tint="@android:color/white"
         app:fabSize="mini"
         app:layout_constraintBottom_toBottomOf="@+id/map_box"
         app:layout_constraintRight_toRightOf="@+id/map_box"
-        app:srcCompat="@drawable/ic_close_black_24dp"
-        android:scaleType="center" />
+        app:srcCompat="@drawable/ic_close_black_24dp" />
 
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/map_box"

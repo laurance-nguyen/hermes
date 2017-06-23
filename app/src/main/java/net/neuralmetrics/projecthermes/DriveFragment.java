@@ -1,6 +1,5 @@
 package net.neuralmetrics.projecthermes;
 
-import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -10,6 +9,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,7 +24,6 @@ import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.Polyline;
 import com.mapbox.mapboxsdk.annotations.PolylineOptions;
-import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.constants.MyLocationTracking;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -78,6 +77,8 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
     private TextView txtCurrentRoute;
     private TextView txtInstruction;
     private ImageView imgCue;
+    private FloatingActionButton quitNavButton;
+    private OnRequestReturnToMapFragment returnToMapFragmentListener;
 
     private HermesNavigationService navService;
     private boolean navServiceBound = false;
@@ -87,6 +88,11 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
 
     public DriveFragment() {
         // Required empty public constructor
+    }
+
+    public void setReturnToMapFragmentListener(OnRequestReturnToMapFragment mListener)
+    {
+        returnToMapFragmentListener = mListener;
     }
 
     /**
@@ -130,6 +136,13 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
             // Interpret destination coordinates
             double lat = getArguments().getDouble("latitude");
             double lon = getArguments().getDouble("longitude");
+
+            if(ServiceRunningUtils.isMyServiceRunning(HermesNavigationService.class, getActivity().getApplicationContext()))
+            {
+                Intent endIntent = new Intent(getActivity().getApplicationContext(), HermesNavigationService.class);
+                endIntent.setAction(ServiceConstants.STOP_FOREGROUND);
+                getActivity().getApplicationContext().startService(endIntent);
+            }
 
             // Start the Navigation Service
             Log.i(LOG_TAG, "Attempting to start navigation service");
@@ -212,6 +225,20 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
         txtCurrentRoute = (TextView) getView().findViewById(R.id.txtRoadTravelling);
         txtInstruction = (TextView) getView().findViewById(R.id.txtDirections);
         imgCue = (ImageView) getView().findViewById(R.id.imgVisualCue);
+
+        quitNavButton = (FloatingActionButton) getView().findViewById(R.id.quit_nav_button);
+        quitNavButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(ServiceRunningUtils.isMyServiceRunning(HermesNavigationService.class, getActivity().getApplicationContext()))
+                {
+                    Intent endIntent = new Intent(getActivity().getApplicationContext(), HermesNavigationService.class);
+                    endIntent.setAction(ServiceConstants.STOP_FOREGROUND);
+                    getActivity().getApplicationContext().startService(endIntent);
+                }
+                ((HomeActivity)getActivity()).requestFragmentMap();
+            }
+        });
     }
 
     @Override
@@ -220,7 +247,7 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
         this.mapboxMap = mapboxMap;
         if (RESUME_NAVIGATION_FLAG)
         {
-            navService.reattachListener();
+            navService.onReattachListener();
             RESUME_NAVIGATION_FLAG=false;
         }
     }
@@ -382,6 +409,16 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
 
     // Life cycle methods
 
+    public interface OnRequestReturnToMapFragment
+    {
+        void onRequestReturnToMap();
+    }
+
+    private void requestReturnToMapFragment()
+    {
+        if (returnToMapFragmentListener!=null) returnToMapFragmentListener.onRequestReturnToMap();
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -403,7 +440,7 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
     public void onResume() {
         Log.i(LOG_TAG, "DriveFragment OnResume");
         if (navService!=null) navService.setEventReception(DriveFragment.this);
-        if (navService!=null) navService.reattachListener();
+        if (navService!=null) navService.onReattachListener();
         mapView.onResume();
         super.onResume();
     }
@@ -421,14 +458,14 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
     public void onStart() {
         super.onStart();
         Log.i(LOG_TAG, "DriveFragment OnStart");
-        bindServiceToFragment();
+        // bindServiceToFragment();
         mapView.onStart();
     }
 
     @Override
     public void onStop() {
         Log.i(LOG_TAG, "DriveFragment OnStop");
-        unbindServiceFromFragment();
+        // unbindServiceFromFragment();
         super.onStop();
         mapView.onStop();
     }
@@ -442,8 +479,10 @@ public class DriveFragment extends Fragment implements OnMapReadyCallback, Herme
     @Override
     public void onDestroy() {
         Log.i(LOG_TAG, "DriveFragment is prepared to be destroyed");
+        unbindServiceFromFragment();
         if (navService!=null) navService.removeEventReception();
         mapboxMap.setLocationSource(null);
+        returnToMapFragmentListener = null;
         mapView.onDestroy();
         super.onDestroy();
     }

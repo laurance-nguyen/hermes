@@ -19,14 +19,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.crashlytics.android.Crashlytics;
 import com.mapbox.services.android.navigation.v5.listeners.NavigationEventListener;
 
 import net.neuralmetrics.projecthermes.navigationservice.HermesNavigationService;
 import net.neuralmetrics.projecthermes.navigationservice.ServiceConstants;
 import net.neuralmetrics.projecthermes.utils.ServiceRunningUtils;
 
+import io.fabric.sdk.android.Fabric;
+
 public class HomeActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, MapFragment.OnRequestDrivingListener {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
     ConstraintLayout contentFrame;
     DrawerLayout drawer;
@@ -35,6 +38,9 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Crashlytics plugin
+        Fabric.with(this, new Crashlytics());
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -73,7 +79,6 @@ public class HomeActivity extends AppCompatActivity
         // Switch to maps fragment on start
         navigationView.setCheckedItem(R.id.nav_maps);
         chosenMenuFragment = MapFragment.newInstance();
-        ((MapFragment) chosenMenuFragment).setDrivingListener(this);
         navReplaceFragment();
     }
 
@@ -129,7 +134,6 @@ public class HomeActivity extends AppCompatActivity
 
         if (id == R.id.nav_maps) {
             chosenMenuFragment = MapFragment.newInstance();
-            ((MapFragment) chosenMenuFragment).setDrivingListener(this);
         } else if (id == R.id.nav_drive) {
             if (ServiceRunningUtils.isMyServiceRunning(HermesNavigationService.class,this))
             {
@@ -159,10 +163,16 @@ public class HomeActivity extends AppCompatActivity
     }
 
     // Request fragment drive by MapFragment to switch to driving mode
-    @Override
     public void requestFragmentDrive(double lat, double lon) {
         chosenMenuFragment = DriveFragment.newInstance(lat, lon);
         navigationView.setCheckedItem(R.id.nav_drive);
+        navReplaceFragment();
+    }
+
+    public void requestFragmentMap()
+    {
+        chosenMenuFragment = MapFragment.newInstance();
+        navigationView.setCheckedItem(R.id.nav_maps);
         navReplaceFragment();
     }
 
@@ -176,10 +186,5 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        /*if (getIntent().getAction().equals(ServiceConstants.START_NAV_FRAGMENT) || ServiceRunningUtils.isMyServiceRunning(HermesNavigationService.class,this))
-        {
-            requestFragmentDrive();
-            return;
-        }*/
     }
 }

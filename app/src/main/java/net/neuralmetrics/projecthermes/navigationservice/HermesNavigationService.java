@@ -39,6 +39,7 @@ import retrofit2.Response;
 import timber.log.Timber;
 
 // NOTE: NavigationService only exposes the EventReception to DriveFragment!
+// ONLY NEED TO UNBIND AT ONDESTROY. Events listeners, however, must be unplugged onPause and replugged onStart!
 
 public class HermesNavigationService extends Service implements NavigationEventListener, ProgressChangeListener, AlertLevelChangeListener, OffRouteListener {
     private static final String LOG_TAG = "HermesNavigationService";
@@ -237,7 +238,7 @@ public class HermesNavigationService extends Service implements NavigationEventL
         }
     }
 
-    public void reattachListener()
+    public void onReattachListener()
     {
         if (eventReception!=null) eventReception.serviceReady(HermesNavigationService.this.route, HermesNavigationService.this.locationEngine, HermesNavigationService.this.destination);
     }
